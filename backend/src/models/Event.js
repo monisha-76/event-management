@@ -18,7 +18,7 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    posterUrl: { // Stores the URL of the uploaded image/banner
+    posterImage: { // Stores the URL of the uploaded image/banner
       type: String,
       required: true,
     },
@@ -36,18 +36,21 @@ const eventSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    // New field for Admin Dashboard requirement
-    status: {
-      type: String,
-      enum: ["Pending", "Approved", "Cancelled"],
-      default: "Pending", // New events start as Pending for admin review
-    },
     // Track current registrations
     currentAttendees: {
       type: Number,
       default: 0,
       min: 0,
-    }
+    },
+    // Add inside eventSchema:
+
+  registrationFee: {
+  type: Number,
+  required: true,
+  min: 0,
+},
+
+
   },
   { timestamps: true }
 );

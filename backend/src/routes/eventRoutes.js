@@ -1,28 +1,40 @@
 // routes/eventRoutes.js
 
 import express from "express";
-import { createEvent, updateEvent, deleteEvent,getOrganizerEvents, 
-    getEventById } from "../controllers/eventController.js";
+import {
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  getOrganizerEvents,
+  getEventById,
+  getAllEvents,
+} from "../controllers/eventController.js";
+
 import { authRequired, roleRequired } from "../middlewares/authMiddleware.js";
+import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
-// Middleware: Only authenticated users with role 'organizer' or 'admin' can access these routes.
+// Only Organizer or Admin can access event CRUD
 const organizerAccess = [authRequired, roleRequired("organizer", "admin")];
 
-router.get("/", ...organizerAccess, getOrganizerEvents);
+/* ------------------------------------------------------------------
+   MUST COME FIRST – GET all events created by the current organizer
+-------------------------------------------------------------------*/
+router.get("/organizer", ...organizerAccess, getOrganizerEvents);
 
-// GET /api/events/:id - Get a single Event by ID
+/* ---------------------- Create Event ---------------------------- */
+router.post("/", ...organizerAccess, upload.single("posterImage"), createEvent);
+
+router.get("/all", getAllEvents);
+
+/* ---------------------- Get Single Event by ID ------------------ */
 router.get("/:id", ...organizerAccess, getEventById);
 
-// POST /api/events - Create Event
-router.post("/", ...organizerAccess, createEvent);
-
-// PUT /api/events/:id - Update Event
-// :id is the event ID
+/* ---------------------- Update Event ----------------------------- */
 router.put("/:id", ...organizerAccess, updateEvent);
 
-// DELETE /api/events/:id - Delete Event
+/* ---------------------- Delete Event ----------------------------- */
 router.delete("/:id", ...organizerAccess, deleteEvent);
 
 export default router;

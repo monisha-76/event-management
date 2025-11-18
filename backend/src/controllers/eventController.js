@@ -5,30 +5,50 @@ import Event from '../models/Event.js';
 
 // --- Create Event (Organizer Feature) ---
 export const createEvent = async (req, res) => {
-    try {
-        // The organizer ID is securely obtained from the JWT payload via authRequired middleware
-        const organizer = req.user.id; 
+  try {
+    const organizer = req.user.id;
 
-        // Extract event details from the request body
-        const { title, description, posterUrl, capacity, date, location } = req.body;
+    const posterImage = req.file?.path; // Cloudinary URL
 
-        const event = await Event.create({
-            organizer,
-            title,
-            description,
-            posterUrl,
-            capacity,
-            date,
-            location,
-            // Status defaults to 'Pending' as defined in the model
-        });
-
-        res.status(201).json({ message: "Event created successfully and is pending admin approval.", event });
-    } catch (err) {
-        // Handle validation errors (e.g., missing required fields)
-        res.status(400).json({ message: "Failed to create event.", error: err.message });
+    if (!posterImage) {
+      return res.status(400).json({ message: "Event image is required" });
     }
+
+    const { title, description, capacity, date, location, registrationFee } = req.body;
+
+
+    const event = await Event.create({
+      organizer,
+      title,
+      description,
+      posterImage,
+      capacity,
+      date,
+      location,
+      registrationFee,
+    });
+
+    res.status(201).json({
+      message: "Event created successfully!",
+      event,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
+
+// Public: Get all events
+export const getAllEvents = async (req, res) => {
+  try {
+    const events = await Event.find().populate("organizer", "name email");
+    res.status(200).json(events);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching events", error: error.message });
+  }
+};
+
 
 // --- Update Event (Organizer Feature) ---
 export const updateEvent = async (req, res) => {
@@ -50,7 +70,6 @@ export const updateEvent = async (req, res) => {
         }
         
         // Prevent organizer from changing the 'status' (Admin job) or 'currentAttendees'
-        delete updates.status; 
         delete updates.currentAttendees;
 
         const updatedEvent = await Event.findByIdAndUpdate(eventId, updates, { new: true, runValidators: true });
@@ -95,7 +114,10 @@ export const getOrganizerEvents = async (req, res) => {
         const organizerId = req.user.id; 
 
         // Find all events where the organizer field matches the current user's ID
-        const events = await Event.find({ organizer: organizerId }).sort({ date: 1 });
+        const events = await Event.find({ organizer: organizerId })
+     .sort({ date: 1 })
+      .populate("organizer", "name email"); 
+
 
         if (events.length === 0) {
             return res.status(200).json({ message: "You have not created any events yet.", events: [] });
@@ -113,7 +135,8 @@ export const getEventById = async (req, res) => {
         const eventId = req.params.id;
         const organizerId = req.user.id; 
 
-        const event = await Event.findById(eventId);
+       const event = await Event.findById(eventId)
+       .populate("organizer", "name email");
 
         if (!event) {
             return res.status(404).json({ message: "Event not found." });
@@ -121,7 +144,7 @@ export const getEventById = async (req, res) => {
 
         // Security Check: Only the original organizer (or an Admin) can view their event details
         // Note: Admin access will be handled by roleRequired in the routes file.
-        if (event.organizer.toString() !== organizerId) {
+       if (event.organizer._id.toString() !== organizerId) {
             return res.status(403).json({ message: "Access denied. You are not the organizer of this event." });
         }
 

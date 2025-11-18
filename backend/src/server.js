@@ -7,6 +7,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser"; 
 import connectDB from "./config/db.js";
+import "./config/cloudinary.js";
+
 
 // Import all route files
 import authRoutes from "./routes/authRoutes.js";
