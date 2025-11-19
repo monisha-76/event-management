@@ -32,7 +32,7 @@ router.get("/all", getAllEvents);
 router.get("/:id", ...organizerAccess, getEventById);
 
 /* ---------------------- Update Event ----------------------------- */
-router.put("/:id", ...organizerAccess, updateEvent);
+router.put("/:id", ...organizerAccess, upload.single("posterImage"), updateEvent);
 
 /* ---------------------- Delete Event ----------------------------- */
 router.delete("/:id", ...organizerAccess, deleteEvent);

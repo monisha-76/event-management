@@ -86,3 +86,50 @@ export const logout = (req, res) => {
     res.cookie('token', '', { httpOnly: true, expires: new Date(0) });
     res.status(200).json({ message: 'Logged out successfully' });
 };
+
+// GET LOGGED-IN USER DETAILS
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Update name
+    if (name) user.name = name;
+
+    // Update email
+    if (email) user.email = email.toLowerCase();
+
+    // Update password only if provided
+    if (password && password.trim() !== "") {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    await user.save();
+
+    const responseUser = user.toObject();
+    delete responseUser.password;
+
+    res.json({
+      message: "Profile updated successfully",
+      user: responseUser,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

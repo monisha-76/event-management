@@ -1,6 +1,8 @@
 // controllers/eventController.js
 
 import Event from '../models/Event.js';
+import cloudinary from "cloudinary";
+import fs from "fs";
 
 
 // --- Create Event (Organizer Feature) ---
@@ -51,33 +53,57 @@ export const getAllEvents = async (req, res) => {
 
 
 // --- Update Event (Organizer Feature) ---
+
 export const updateEvent = async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const updates = req.body;
-        const organizerId = req.user.id; 
+  try {
+    const eventId = req.params.id;
+    const organizerId = req.user.id;
 
-        const event = await Event.findById(eventId);
+    const event = await Event.findById(eventId);
 
-        if (!event) {
-            return res.status(404).json({ message: "Event not found." });
-        }
-
-        // Security Check: Only the original organizer (or an Admin) can update
-        // We only check for the organizer here, as roleRequired will handle Admin access
-        if (event.organizer.toString() !== organizerId) {
-            return res.status(403).json({ message: "Access denied. You are not the owner of this event." });
-        }
-        
-        // Prevent organizer from changing the 'status' (Admin job) or 'currentAttendees'
-        delete updates.currentAttendees;
-
-        const updatedEvent = await Event.findByIdAndUpdate(eventId, updates, { new: true, runValidators: true });
-
-        res.json({ message: "Event updated successfully.", event: updatedEvent });
-    } catch (err) {
-        res.status(400).json({ message: "Failed to update event.", error: err.message });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
     }
+
+    // Security Check: Only the organizer can edit
+    if (event.organizer.toString() !== organizerId) {
+      return res.status(403).json({ message: "Access denied." });
+    }
+
+    let updates = req.body;
+
+    // Prevent organizer from changing these
+    delete updates.currentAttendees;
+    delete updates.status;
+
+    // -------------------------------
+    //  HANDLE POSTER IMAGE UPDATE
+    // -------------------------------
+    if (req.file) {
+      const uploaded = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: "event-posters",
+      });
+
+      updates.posterImage = uploaded.secure_url;
+
+      // Remove temp file
+      fs.unlinkSync(req.file.path);
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(
+      eventId,
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    res.json({
+      message: "Event updated successfully.",
+      event: updatedEvent,
+    });
+
+  } catch (err) {
+    res.status(400).json({ message: "Failed to update event.", error: err.message });
+  }
 };
 
 // --- Delete Event (Organizer Feature) ---
