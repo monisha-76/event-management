@@ -29,7 +29,7 @@ router.post("/", ...organizerAccess, upload.single("posterImage"), createEvent);
 router.get("/all", getAllEvents);
 
 /* ---------------------- Get Single Event by ID ------------------ */
-router.get("/:id", ...organizerAccess, getEventById);
+router.get("/:id", getEventById);
 
 /* ---------------------- Update Event ----------------------------- */
 router.put("/:id", ...organizerAccess, upload.single("posterImage"), updateEvent);

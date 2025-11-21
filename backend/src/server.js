@@ -12,7 +12,8 @@ import "./config/cloudinary.js";
 
 // Import all route files
 import authRoutes from "./routes/authRoutes.js";
-import eventRoutes from "./routes/eventRoutes.js"; // <-- 1. Import Event Routes
+import eventRoutes from "./routes/eventRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js"; // <-- 1. Import Event Routes
 
 const app = express();
 
@@ -41,7 +42,8 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 
 // Event Management Routes (Organizer Core Feature)
-app.use("/api/events", eventRoutes); // <-- 3. Mount Event Routes
+app.use("/api/events", eventRoutes); 
+app.use("/api/bookings", bookingRoutes);// <-- 3. Mount Event Routes
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

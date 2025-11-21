@@ -43,7 +43,11 @@ export const createEvent = async (req, res) => {
 export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find().populate("organizer", "name email");
-    res.status(200).json(events);
+    const formatted = events.map(event => ({
+      ...event.toObject(),
+      availableSeats: event.capacity - event.currentAttendees
+    }))
+    res.status(200).json(formatted);
   } catch (error) {
     res
       .status(500)
@@ -155,28 +159,24 @@ export const getOrganizerEvents = async (req, res) => {
     }
 };
 
-// --- Get Single Event by ID ---
 export const getEventById = async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const organizerId = req.user.id; 
+  try {
+    const eventId = req.params.id;
 
-       const event = await Event.findById(eventId)
-       .populate("organizer", "name email");
+    const event = await Event.findById(eventId)
+      .populate("organizer", "name email");
 
-        if (!event) {
-            return res.status(404).json({ message: "Event not found." });
-        }
-
-        // Security Check: Only the original organizer (or an Admin) can view their event details
-        // Note: Admin access will be handled by roleRequired in the routes file.
-       if (event.organizer._id.toString() !== organizerId) {
-            return res.status(403).json({ message: "Access denied. You are not the organizer of this event." });
-        }
-
-        res.status(200).json({ event });
-    } catch (err) {
-        // Handle cases where the ID format is invalid (e.g., Mongoose CastError)
-        res.status(500).json({ message: "Failed to fetch event.", error: err.message });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
     }
+
+    // Fully public – no auth checks
+    return res.status(200).json({ event });
+
+  } catch (err) {
+    return res.status(500).json({
+      message: "Failed to fetch event.",
+      error: err.message
+    });
+  }
 };
