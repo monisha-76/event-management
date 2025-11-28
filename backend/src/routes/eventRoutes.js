@@ -8,6 +8,7 @@ import {
   getOrganizerEvents,
   getEventById,
   getAllEvents,
+  getOrganizerOverview
 } from "../controllers/eventController.js";
 
 import { authRequired, roleRequired } from "../middlewares/authMiddleware.js";
@@ -36,5 +37,11 @@ router.put("/:id", ...organizerAccess, upload.single("posterImage"), updateEvent
 
 /* ---------------------- Delete Event ----------------------------- */
 router.delete("/:id", ...organizerAccess, deleteEvent);
+router.get(
+  "/organizer/overview",
+  authRequired,
+  roleRequired("organizer"),
+  getOrganizerOverview
+);
 
 export default router;

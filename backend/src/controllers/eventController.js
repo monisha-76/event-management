@@ -180,3 +180,41 @@ export const getEventById = async (req, res) => {
     });
   }
 };
+// GET /api/events/organizer/overview
+// GET /api/events/organizer/overview
+export const getOrganizerOverview = async (req, res) => {
+  try {
+    const organizerId = req.user.id;
+
+    // --- 1. Total events created by this organizer ---
+    const organizerEvents = await Event.find({ organizer: organizerId });
+
+    const myEvents = organizerEvents.length;
+
+    const myAttendees = organizerEvents.reduce(
+      (sum, event) => sum + (event.currentAttendees || 0),
+      0
+    );
+
+    // --- 2. Total events in the whole system ---
+    const allEvents = await Event.find();
+
+    const totalEvents = allEvents.length;
+
+    const totalAttendees = allEvents.reduce(
+      (sum, event) => sum + (event.currentAttendees || 0),
+      0
+    );
+
+    return res.json({
+      totalEvents,        // All events in app
+      totalAttendees,     // Sum of all attendees in app
+      myEvents,           // Logged-in organizer's events
+      myAttendees,        // Attendees inside organizer's events
+    });
+
+  } catch (error) {
+    console.log("Overview error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
