@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import API from "../../utils/api";
+import API from "../utils/api";
 
 
 export default function AuthPage() {
