@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import API from "../../utils/api";
 
 export default function CreateEventPage() {
   const [title, setTitle] = useState("");
@@ -13,7 +14,7 @@ export default function CreateEventPage() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const backendURL = "http://localhost:5000";
+  
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -36,28 +37,20 @@ export default function CreateEventPage() {
     // MUST MATCH BACKEND FIELD NAME
     formData.append("posterImage", imageFile);
 
-    try {
-      const res = await fetch(`${backendURL}/api/events`, {
-        method: "POST",
-        credentials: "include", // required for JWT cookie
-        body: formData,
-      });
+   try {
+    const res = await API.post("/api/events", formData);
 
-      const data = await res.json();
+    toast.success("Event created successfully!");
 
-      if (!res.ok) {
-        return toast.error(data.message || "Failed to create event");
-      }
+    window.location.href = "/organizer";
+  } catch (err: any) {
+    console.log(err);
 
-      toast.success("Event created successfully!");
-
-      window.location.href = "/organizer"; // redirect
-    } catch (err) {
-      console.log(err);
-      toast.error("Failed to create event");
-    }
-  };
-
+    toast.error(
+      err.response?.data?.message || "Failed to create event"
+    );
+  }
+};
   return (
     <div className="min-h-screen flex justify-center items-center p-6">
       <div className="bg-white shadow-lg p-8 rounded-xl w-full max-w-2xl">

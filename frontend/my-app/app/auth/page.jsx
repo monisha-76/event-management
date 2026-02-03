@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import API from "../../utils/api";
 
 
 export default function AuthPage() {
@@ -15,68 +16,61 @@ export default function AuthPage() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [role, setRole] = useState("attendee");
 
-  const backendURL = "http://localhost:5000";
+  
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${backendURL}/api/auth/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: loginEmail,
-          password: loginPassword,
-        }),
-      });
+  e.preventDefault();
 
-      const data = await res.json();
+  try {
+    const res = await API.post("/api/auth/login", {
+      email: loginEmail,
+      password: loginPassword,
+    });
 
-      if (!res.ok) {
-        return toast.error(data.message || "Login failed");
-      }
+    toast.success("Login successful!");
 
-      toast.success("Login successful!");
+    const role = res.data.user.role;
 
-      const role = data.user.role;
-
-      if (role === "admin") {
-        window.location.href = "/admin";
-      } else if (role === "organizer") {
-        window.location.href = "/organizer";
-      } else {
-        window.location.href = "/attendee";
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error("Something went wrong");
+    if (role === "admin") {
+      window.location.href = "/admin";
+    } else if (role === "organizer") {
+      window.location.href = "/organizer";
+    } else {
+      window.location.href = "/attendee";
     }
-  };
+  } catch (err) {
+    console.log(err);
+
+    toast.error(
+      err.response?.data?.message || "Login failed"
+    );
+  }
+};
+
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await fetch(`${backendURL}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email: registerEmail,
-          password: registerPassword,
-          role,
-        }),
-      });
+  try {
+    const res = await API.post("/api/auth/register", {
+      name,
+      email: registerEmail,
+      password: registerPassword,
+      role,
+    });
 
-      const data = await res.json();
-      toast.success(data.message);
+    toast.success(res.data.message);
 
-      console.log("Register Response:", data);
-    } catch (err) {
-      console.log(err);
-      toast.error("Registration failed");
-    }
-  };
+    console.log("Register Response:", res.data);
+  } catch (err) {
+    console.log(err);
+
+    toast.error(
+      err.response?.data?.message || "Registration failed"
+    );
+  }
+};
+
 
   return (
     <div
