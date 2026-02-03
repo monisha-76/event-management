@@ -27,12 +27,10 @@ connectDB();
 
 // 2. CORS Configuration for Cookie Handling
 app.use(cors({
-    // IMPORTANT: Change this to your Next.js frontend URL in development
-    // In production, you would set this to your actual domain
-    origin: 'http://localhost:3000', 
-    // This allows the browser to send the HttpOnly cookie
-    credentials: true, 
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
 }));
+
 
 app.use(express.json());
 app.use(cookieParser()); 
