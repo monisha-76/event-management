@@ -9,7 +9,7 @@ export default function AllEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await API.get("/events/all");
+        const res = await API.get("/api/events/all");
         setEvents(res.data);
       } catch (err) {
         console.log(err);

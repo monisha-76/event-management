@@ -20,7 +20,7 @@ export default function OrganizerOverviewPage() {
   // ---------- Fetch Overview Cards ----------
   const fetchOverview = async () => {
     try {
-      const res = await API.get("/events/organizer/overview");
+      const res = await API.get("/api/events/organizer/overview");
       setStats(res.data);
     } catch (error) {
       console.log("Error loading overview:", error);
@@ -30,7 +30,7 @@ export default function OrganizerOverviewPage() {
   // ---------- Fetch Organizer Attendees ----------
   const fetchAttendees = async () => {
     try {
-      const res = await API.get("/bookings/organizer/attendees");
+      const res = await API.get("/api/bookings/organizer/attendees");
       setAttendees(res.data);
       setFiltered(res.data);
     } catch (error) {

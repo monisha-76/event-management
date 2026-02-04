@@ -22,8 +22,8 @@ export default function AccountPage() {
 
   const fetchData = async () => {
     try {
-      const userRes = await API.get("/auth/me");
-      const eventRes = await API.get("/events/organizer");
+      const userRes = await API.get("/api/auth/me");
+      const eventRes = await API.get("/api/events/organizer");
 
       setUser(userRes.data);
       setName(userRes.data.name);
@@ -39,7 +39,7 @@ export default function AccountPage() {
 
   const updateProfile = async () => {
     try {
-      await API.put("/auth/update-profile", { name, password });
+      await API.put("/api/auth/update-profile", { name, password });
       toast.success("Profile updated");
       setEditMode(false);
       fetchData();
@@ -50,7 +50,7 @@ export default function AccountPage() {
 
   const deleteEvent = async (id) => {
     try {
-      await API.delete(`/events/${id}`);
+      await API.delete(`/api/events/${id}`);
       toast.success("Event deleted");
       fetchData();
     } catch (err) {

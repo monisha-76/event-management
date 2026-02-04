@@ -30,7 +30,7 @@ export default function UpdateEventPage() {
 
   const fetchEvent = async () => {
     try {
-      const res = await API.get(`/events/${id}`);
+      const res = await API.get(`/api/events/${id}`);
       const ev = res.data.event;
 
       if (!ev) {
@@ -88,7 +88,7 @@ export default function UpdateEventPage() {
         formData.append("posterImage", posterImage);
       }
 
-      await API.put(`/events/${id}`, formData, {
+      await API.put(`/api/events/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
