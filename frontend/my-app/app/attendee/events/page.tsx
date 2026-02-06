@@ -15,7 +15,7 @@ export default function EventListingPage() {
 
   const fetchEvents = async () => {
   try {
-    const res = await API.get("/events/all");
+    const res = await API.get("/api/events/all");
 
     // FIX: backend returns an array directly
     const data = Array.isArray(res.data) ? res.data : [];

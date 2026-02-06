@@ -28,7 +28,7 @@ export default function AttendeeHomePage() {
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const res = await API.get("/events/all");
+        const res = await API.get("/api/events/all");
 
         const upcoming = [...res.data]
           .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

@@ -21,8 +21,8 @@ export default function AttendeeProfilePage() {
 
   const loadData = async () => {
     try {
-      const userRes = await API.get("/auth/me");
-      const bookingRes = await API.get("/bookings/my");
+      const userRes = await API.get("api/auth/me");
+      const bookingRes = await API.get("api/bookings/my");
 
       setUser(userRes.data);
       setName(userRes.data.name);
@@ -37,7 +37,7 @@ export default function AttendeeProfilePage() {
 
   const updateProfile = async () => {
     try {
-      await API.put("/auth/update-profile", { name, password });
+      await API.put("/api/auth/update-profile", { name, password });
       toast.success("Profile updated");
       setEditMode(false);
       loadData();

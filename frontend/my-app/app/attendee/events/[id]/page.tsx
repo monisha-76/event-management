@@ -19,7 +19,7 @@ export default function EventDetailsPage() {
 
   const fetchEventDetails = async () => {
     try {
-      const res = await API.get(`/events/${id}`);
+      const res = await API.get(`/api/events/${id}`);
       setEvent(res.data.event);
     } catch (err) {
       console.error("Error fetching event details:", err);
@@ -37,7 +37,7 @@ export default function EventDetailsPage() {
   if (!confirmBooking) return;
 
   try {
-    await API.post(`/bookings/${id}`,{});
+    await API.post(`/api/bookings/${id}`,{});
     toast.success("Event booked successfully! Confirmation email has been sent.");
   }catch (error) {
   console.error("Booking error:", error.response?.data);
