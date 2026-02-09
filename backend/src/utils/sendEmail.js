@@ -10,7 +10,7 @@ export const sendEmail = async (to, subject, html) => {
     }
 
     await resend.emails.send({
-      from: `"Event Management" <${process.env.EMAIL_USER}>`, // works for testing
+      from: "Event Management <onboarding@resend.dev>", // works for testing
       to,
       subject,
       html,
