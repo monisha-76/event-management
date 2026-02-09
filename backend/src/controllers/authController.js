@@ -58,7 +58,7 @@ export const login = async (req, res) => {
         res.cookie("token", token, {
             httpOnly: true, // Prevents client-side JavaScript access (XSS mitigation)
             secure: process.env.NODE_ENV === "production", // Use only over HTTPS in production
-            sameSite: "strict", // Protection against CSRF
+            sameSite: "none", // Protection against CSRF
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (in milliseconds)
             path: "/", // Token valid for all paths
         });
@@ -83,7 +83,13 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
     // Explanation: Clear the 'token' cookie by setting it to an empty value 
     // and setting its expiration date to the past (Date(0)).
-    res.cookie('token', '', { httpOnly: true, expires: new Date(0) });
+    res.cookie("token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        expires: new Date(0),
+        path: "/",
+    });
     res.status(200).json({ message: 'Logged out successfully' });
 };
 
