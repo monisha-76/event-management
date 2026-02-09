@@ -1,38 +1,23 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async (to, subject, html) => {
   try {
     if (!to) {
-      console.error("❌ Email sending failed: Recipient email (to) is missing");
+      console.error("❌ Email sending failed: Recipient email missing");
       return;
     }
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // TLS
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
+    await resend.emails.send({
+      from: `"Event Management" <${process.env.EMAIL_USER}>`, // works for testing
+      to,
+      subject,
+      html,
     });
 
-
-    const mailOptions = {
-      from: `"Event Management" <${process.env.EMAIL_USER}>`,
-      to: to,
-      subject: subject,
-      html: html,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    console.log("✅ Email sent successfully");
+    console.log("✅ Email sent successfully via Resend");
   } catch (err) {
-    console.error("❌ Email sending failed:", err.message);
-    if (err.response) console.error("SMTP Response:", err.response);
+    console.error("❌ Email sending failed:", err);
   }
 };
